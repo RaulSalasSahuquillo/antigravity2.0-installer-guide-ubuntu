@@ -1,68 +1,62 @@
-# Google Antigravity 2.0 & IDE: Installation Guide for Ubuntu (Bash/Zsh)
+# /usr/bin/antigravity-installer
 
-Welcome! This repository provides step-by-step installation guides and automated installer scripts to set up **Google Antigravity 2.0 (Standalone)** and **Google Antigravity 2.0 IDE** on Ubuntu (compatible with both `bash` and `zsh`). 
+> *"Loading installation scripts..."*
+> `[OK] Host environment: Ubuntu / Debian`
+> `[OK] Shells supported: Bash & Zsh`
+> `[OK] Ready to deploy.`
 
-It also covers troubleshooting for common Linux desktop integration issues: the SUID sandbox error, Ubuntu 24.04 AppArmor space restrictions (the SIGTRAP trap), launcher creation, custom brand logo installation, and fixing the generic "gear icon" in the Ubuntu Dock.
+Welcome to the automated installer and integration guide for Google Antigravity 2.0 (Standalone Utility) and Google Antigravity 2.0 IDE on Ubuntu. If you want to bypass manual folder placement, chrome-sandbox permission errors, and AppArmor security blocks, you are in the right terminal.
 
 ---
 
-## ⚠️ Prerequisite: Removing Antigravity 1.0
+### /etc/prereqs
 
-Before installing Antigravity 2.0 or the IDE, you **must completely remove any existing Antigravity 1.0 installation** to avoid system conflicts, mixed binary files, and desktop shortcut duplication.
+**Uninstall legacy Antigravity 1.0**
 
-We provide a cleanup script (`remove-antigravity-1.sh`) at the root of the project to automate this process.
+Before deploying 2.0, you must completely remove any existing Antigravity 1.0 installation to prevent file version conflicts, duplicated shortcut entries, or desktop launcher corruption.
 
-### Automatically Remove Antigravity 1.0
-Run the removal tool:
+Run the removal script at the root of this project:
 ```bash
 ./remove-antigravity-1.sh
 ```
 
-### Options:
+Arguments:
 *   `-d, --dir <path>`: Specify a custom installation directory to clean instead of the default `/opt/antigravity`.
-*   `-p, --purge`: In addition to deleting the application, purge all user configurations, profiles, and settings located in `~/.config/Antigravity` and `~/.antigravity`. *(Note: Do NOT purge if you plan to use the `--migrate` option in the IDE installer, as it needs these files to import your settings).*
+*   `-p, --purge`: Remove all user configurations, profile variables, and extensions located in `~/.config/Antigravity` and `~/.antigravity`. (Do NOT purge if you intend to use the `--migrate` option in the IDE installer, as it needs those files to copy your preferences).
 
 ---
 
-## 🚀 Quick Automated Installation
+### /usr/bin/install
 
-We provide pre-packaged scripts in the root directory to automate the extraction, permission fixes, custom logos, desktop launcher configuration, and Dock integration.
+We provide pre-packaged scripts in the root directory to automate file extraction, sandbox ownership corrections, logo registration, and desktop shortcut generation.
 
-### Install Antigravity 2.0 (Standalone Utility)
-Run the standalone installer, pointing to your downloaded archive:
+**Install Antigravity 2.0 (Standalone Utility)**
 ```bash
 ./install-antigravity.sh ~/Downloads/google-antigravity-linux-x64.tar.gz
 ```
 
-### Install Antigravity 2.0 IDE
-Run the IDE installer, pointing to your downloaded archive. If you are running **Ubuntu 24.04 Noble Numbat**, remember to pass the `--no-sandbox` flag to prevent AppArmor crashes:
+**Install Antigravity 2.0 IDE**
+If you are running Ubuntu 24.04, make sure to add the `--no-sandbox` parameter to bypass the new AppArmor restrictions:
 ```bash
 ./install-ide.sh --no-sandbox ~/Downloads/AntigravityIDE.tar.gz
 ```
 
-### Script Arguments & Customization
-
-Both scripts support the following parameters:
-*   `-d, --dir <path>`: Install to a custom directory instead of defaults (`/opt/antigravity` or `/opt/antigravity-ide`).
-*   `-n, --no-sandbox`: Force the `--no-sandbox` parameter in the desktop shortcut `Exec` line (highly recommended for Ubuntu 24.04).
-*   `-m, --migrate` *(IDE only)*: Automatically migrates your existing settings and extensions from your standard Antigravity installation to the IDE.
+**Arguments**
+*   `-d, --dir <path>`: Override the installation directory (defaults: `/opt/antigravity` or `/opt/antigravity-ide`).
+*   `-n, --no-sandbox`: Force the `--no-sandbox` flag inside the shortcut desktop entry's Exec command (highly recommended for Ubuntu 24.04).
+*   `-m, --migrate` (IDE installer only): Automatically copy over your settings and extensions from your standard Antigravity installation to the IDE.
 
 ---
 
-## 🛠️ Detailed Manual Installation & Troubleshooting Guide
+### /usr/share/man/manual-troubleshooting
 
-If you prefer to install the applications manually, follow this breakdown of the steps and critical settings.
+If you prefer to configure your application manually, run the following steps:
 
-### 1. Extraction and Directory Placement
-
-For a standard multi-user setup, we place manually installed packages in the `/opt/` system directory.
-
+**1. Extraction and Folder Placement**
+For global access, manual packages are stored under the `/opt/` system directory.
 ```bash
-# Navigate to downloads and extract
 cd ~/Downloads
 tar -xzf google-antigravity-linux-x64.tar.gz
-
-# Move the extracted files to their permanent locations
 sudo mv google-antigravity /opt/antigravity
 
 # For the IDE:
@@ -70,43 +64,22 @@ tar -xzf AntigravityIDE.tar.gz
 sudo mv "Antigravity IDE" /opt/antigravity-ide
 ```
 
----
-
-### 2. Fixing the SUID Sandbox Permission Error
-
-Electron and Chromium-based applications use a security sandbox. By default, Linux requires the `chrome-sandbox` helper binary to be owned by `root` and have setuid permissions (`4755`). If you see a `FATAL:setuid_sandbox_host.cc` crash on startup:
-
+**2. SUID Sandbox Permission Error**
+Electron/Chromium apps require the helper executable `chrome-sandbox` to be owned by root and have setuid permissions set to 4755:
 ```bash
-# Navigate to your installation directory
-cd /opt/antigravity   # or /opt/antigravity-ide
-
-# Set root ownership and setuid permissions
+cd /opt/antigravity
 sudo chown root:root chrome-sandbox
 sudo chmod 4755 chrome-sandbox
 ```
 
----
-
-### 3. Fixing the Ubuntu 24.04 AppArmor Crash (`SIGTRAP`)
-
-> [!IMPORTANT]
-> Ubuntu 24.04 introduced restricted user namespace usage via AppArmor. This causes many Chromium/Electron apps using `chrome-sandbox` to abort immediately with a `SIGTRAP (core dumped)` error.
-> 
-> **The Solution:** Append the `--no-sandbox` flag to the application's executable path in your terminal execution or your desktop launcher shortcut.
-
+**3. Ubuntu 24.04 AppArmor Namespace Restrictions (SIGTRAP Crash)**
+Ubuntu 24.04 restricts unprivileged user namespaces. If the app aborts immediately with a SIGTRAP (core dumped), run it with the `--no-sandbox` flag:
 ```bash
-# To run from terminal:
 /opt/antigravity/antigravity --no-sandbox
 ```
 
----
-
-### 4. Creating the Desktop Shortcut (`.desktop` file)
-
-To make the application searchable in the Ubuntu menu and show up in the Application Drawer, you must create a `.desktop` file under `~/.local/share/applications/`.
-
-Create a file named `~/.local/share/applications/antigravityide.desktop`:
-
+**4. Create Desktop Shortcut**
+Create a launcher shortcut inside `~/.local/share/applications/antigravityide.desktop`:
 ```ini
 [Desktop Entry]
 Version=1.0
@@ -119,72 +92,49 @@ Terminal=false
 Categories=Development;IDE;
 StartupWMClass=Antigravity IDE
 ```
+Mark it executable and update desktop database to register it:
+```bash
+chmod +x ~/.local/share/applications/antigravityide.desktop
+update-desktop-database ~/.local/share/applications/
+```
 
-> [!TIP]
-> Make sure the desktop file is executable by running:
-> ```bash
-> chmod +x ~/.local/share/applications/antigravityide.desktop
-> ```
-> Then update the desktop registry database to force Ubuntu to load it:
-> ```bash
-> update-desktop-database ~/.local/share/applications/
-> ```
-
----
-
-### 5. Fixing the Dock "Gear Icon" (WM_CLASS Binding)
-
-If your app is running but shows a generic grey cogwheel/gear icon in the Dock and doesn't let you right-click to add it to your "Favorites", the GNOME Shell doesn't know how to link the open window with your `.desktop` configuration.
-
-To fix this, we map the window's internal identification class to the launcher.
-
-1. Run the application.
-2. In terminal, run: `xprop WM_CLASS`
-3. Click on the open application window.
-4. You will see an output like: `WM_CLASS(STRING) = "antigravity-ide", "Antigravity IDE"`
-5. Copy the exact second class string (case sensitive) and append it to your `.desktop` file under the key `StartupWMClass`:
+**5. Fix Generic Gear Icon in Dock (WM_CLASS Binding)**
+If GNOME Shell displays a generic gear icon and fails to associate your active window with the launcher shortcut:
+1. Open the application.
+2. In a terminal, run: `xprop WM_CLASS`
+3. Click the open application window.
+4. Copy the second string in the output (e.g. "Antigravity IDE").
+5. Paste it under `StartupWMClass` key in the `.desktop` file:
    ```ini
    StartupWMClass=Antigravity IDE
    ```
-6. Restart the application. The correct icon will show on the Dock, allowing you to add it to Favorites.
 
----
-
-### 6. Migrating Settings & Extensions
-
-If you are upgrading from the standard Antigravity utility to the Antigravity IDE and want to carry over your workspace settings and extensions, copy these configuration files:
-
+**6. Settings & Extensions Migration**
+Migrate your current standard configuration settings to the IDE environment using these folder paths:
 ```bash
-# 1. Copy user extensions
 mkdir -p ~/.antigravity-ide/
 cp -r ~/.antigravity/extensions ~/.antigravity-ide/
 
-# 2. Copy user settings (e.g., keybinds, profiles, AI endpoints)
 mkdir -p "$HOME/.config/Antigravity IDE/User"
 cp "$HOME/.config/Antigravity/User/settings.json" "$HOME/.config/Antigravity IDE/User/"
 ```
 
 ---
 
-## 🎨 Asset Management
+### /usr/share/assets
 
-This repository contains custom vector and raster icons inside the `assets/` folder:
-*   `assets/antigravity-2.0-logo.png` - Standard high-resolution icon for Antigravity 2.0.
-*   `assets/antigravity-ide-logo.svg` - Scalable Vector Graphics (SVG) icon for Antigravity IDE, which renders crisp and sharp at all sizes inside the GNOME Shell and Dock.
-
-To use the SVG icon manually:
-```bash
-sudo cp assets/antigravity-ide-logo.svg /opt/antigravity-ide/
-```
-Then point `Icon=/opt/antigravity-ide/antigravity-ide-logo.svg` in your `.desktop` file.
+Custom graphics are placed inside the `assets/` directory:
+*   `assets/antigravity-2.0-logo.png` - Standard raster icon.
+*   `assets/antigravity-ide-logo.svg` - Scalable vector graphic icon, providing high resolution scaling for launcher shortcuts and Dock favorites.
 
 ---
 
-## 🔍 Troubleshooting Audit Utility
+### /usr/sbin/audit
 
-You can verify the status of your shortcuts and installation directories at any time by running our audit utility:
+Validate the status of your folders, launcher properties, permissions, and icons by running the diagnostic tool:
 ```bash
 ./scripts/shortcut-updater.sh
 ```
 
-This script will verify your installation directories, check whether the binaries exist, check permissions, validate image formats, and force-reload your desktop launcher database.
+---
+*"In a world full of GUIs, be a command line."*
