@@ -49,7 +49,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# 1. Remove binary/installation directory
+# Remove binary/installation directory
 if [[ -d "$INSTALL_DIR" ]]; then
     # Verify if it looks like an Antigravity installation
     # (Checking for binary 'antigravity' or 'Antigravity' or folder structure)
@@ -81,7 +81,7 @@ else
     echo -e "${YELLOW}[-] No installation directory found at '$INSTALL_DIR'. Skipping.${NC}"
 fi
 
-# 2. Remove standard desktop application launcher shortcut
+# Remove standard desktop application launcher shortcut
 DESKTOP_FILE="$HOME/.local/share/applications/antigravity.desktop"
 if [[ -f "$DESKTOP_FILE" ]]; then
     echo -e "${GREEN}[*] Removing desktop launcher shortcut: $DESKTOP_FILE${NC}"
@@ -97,7 +97,7 @@ else
     echo -e "${YELLOW}[-] Desktop shortcut not found at '$DESKTOP_FILE'. Skipping.${NC}"
 fi
 
-# 3. Purge configuration and extensions if --purge is specified
+# Purge configuration and extensions if --purge is specified
 if [[ "$PURGE" == true ]]; then
     echo -e "${RED}[*] Purging user configuration and extensions...${NC}"
     CONFIG_DIR="$HOME/.config/Antigravity"

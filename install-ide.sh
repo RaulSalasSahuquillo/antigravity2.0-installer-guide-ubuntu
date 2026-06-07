@@ -246,7 +246,7 @@ chmod +x "$DESKTOP_FILE"
 if [[ "$MIGRATE" == true ]]; then
     echo -e "${GREEN}[*] Migrating configurations and extensions...${NC}"
     
-    # 1. Extensions Migration
+    # Extensions Migration
     SRC_EXT="$HOME/.antigravity/extensions"
     DEST_EXT="$HOME/.antigravity-ide/extensions"
     if [[ -d "$SRC_EXT" ]]; then
@@ -258,7 +258,7 @@ if [[ "$MIGRATE" == true ]]; then
         echo -e "    ${YELLOW}[!] Source extensions directory $SRC_EXT does not exist. Skipping.${NC}"
     fi
 
-    # 2. Settings Migration
+    # Settings Migration
     SRC_SETTINGS="$HOME/.config/Antigravity/User/settings.json"
     DEST_SETTINGS_DIR="$HOME/.config/Antigravity IDE/User"
     if [[ -f "$SRC_SETTINGS" ]]; then
